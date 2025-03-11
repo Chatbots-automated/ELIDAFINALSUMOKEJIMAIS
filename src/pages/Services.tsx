@@ -67,7 +67,7 @@ export default function Services() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="font-playfair text-4xl md:text-5xl text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-5xl text-gray-900 mb-6">
               Mūsų Paslaugos
             </h1>
             <p className="text-lg text-gray-600 mb-8">
@@ -102,7 +102,7 @@ export default function Services() {
                   <div className="w-16 h-16 bg-elida-cream rounded-xl flex items-center justify-center text-elida-gold mb-6 group-hover:bg-elida-gold group-hover:text-white transition-all duration-300">
                     {service.icon}
                   </div>
-                  <h3 className="font-playfair text-2xl text-gray-900 mb-4">
+                  <h3 className="text-2xl text-gray-900 mb-4">
                     {service.title}
                   </h3>
                   <p className="text-gray-600 mb-6">
@@ -117,10 +117,17 @@ export default function Services() {
                     ))}
                   </ul>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-playfair text-elida-gold">
+                    <span className="text-2xl text-elida-gold">
                       {service.price}
                     </span>
-                    {service.id !== 'cosmetics' && (
+                    {service.id === 'cosmetics' ? (
+                      <Link
+                        to="/products"
+                        className="px-6 py-2 bg-elida-gold text-white rounded-full text-sm font-medium hover:bg-elida-accent transition-colors duration-300"
+                      >
+                        Peržiūrėti
+                      </Link>
+                    ) : (
                       <Link
                         to="/booking"
                         className="px-6 py-2 bg-elida-gold text-white rounded-full text-sm font-medium hover:bg-elida-accent transition-colors duration-300"

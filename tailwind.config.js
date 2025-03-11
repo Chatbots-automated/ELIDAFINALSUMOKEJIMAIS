@@ -18,8 +18,7 @@ export default {
         }
       },
       fontFamily: {
-        'playfair': ['"Playfair Display"', 'serif'],
-        'poppins': ['Poppins', 'sans-serif']
+        'georgia': ['Georgia', 'serif'],
       },
       animation: {
         'gradient': 'gradient 8s linear infinite',

@@ -17,26 +17,31 @@
   }
 
   body {
-    @apply bg-elida-cream text-gray-900 antialiased font-poppins font-light;
+    @apply bg-elida-cream text-gray-900 antialiased;
+    font-family: Georgia, serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-playfair font-light tracking-wide;
+    @apply font-light tracking-wide;
+    font-family: Georgia, serif;
   }
 }
 
 @layer components {
   .btn-primary {
     @apply px-8 py-3.5 bg-gradient-to-r from-elida-gold to-elida-accent text-white rounded-full 
-           font-poppins font-light tracking-wider hover:shadow-lg transform hover:scale-105 transition-all duration-300;
+           font-light tracking-wider hover:shadow-lg transform hover:scale-105 transition-all duration-300;
+    font-family: Georgia, serif;
   }
 
   .section-title {
-    @apply font-playfair text-4xl md:text-5xl text-gray-900 mb-6 leading-tight font-light tracking-wide;
+    @apply text-4xl md:text-5xl text-gray-900 mb-6 leading-tight font-light tracking-wide;
+    font-family: Georgia, serif;
   }
 
   .section-subtitle {
-    @apply text-xl text-gray-600 mb-10 leading-relaxed font-poppins font-light tracking-wide;
+    @apply text-xl text-gray-600 mb-10 leading-relaxed font-light tracking-wide;
+    font-family: Georgia, serif;
   }
   
   .luxury-card {
@@ -47,13 +52,15 @@
   .luxury-input {
     @apply w-full px-5 py-3.5 rounded-xl bg-white/50 border border-gray-100 
            focus:ring-2 focus:ring-elida-gold focus:border-transparent
-           placeholder-gray-400 transition-all duration-300 font-poppins font-light;
+           placeholder-gray-400 transition-all duration-300 font-light;
+    font-family: Georgia, serif;
   }
   
   .luxury-button {
     @apply px-10 py-4 bg-gradient-to-r from-elida-gold to-elida-accent text-white rounded-full 
-           font-poppins font-light tracking-wider shadow-md hover:shadow-xl transform 
+           font-light tracking-wider shadow-md hover:shadow-xl transform 
            hover:scale-105 transition-all duration-300;
+    font-family: Georgia, serif;
   }
 }
 
