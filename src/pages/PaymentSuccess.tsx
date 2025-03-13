@@ -21,7 +21,24 @@ export default function PaymentSuccess() {
       try {
         const isValid = await verifyPayment(transactionId);
         if (isValid) {
+          // Clear the cart after successful payment
           clearCart();
+
+          // Send webhook to Make.com
+          await fetch("https://hook.eu2.make.com/cpw4ynt56urvf97eb2l9ap1rsm67hef2", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transactionId,
+              status: "COMPLETED",
+              reference: searchParams.get('reference'),
+              amount: searchParams.get('amount'),
+              currency: searchParams.get('currency'),
+              customerEmail: searchParams.get('email'),
+              customerName: searchParams.get('name'),
+              message: "Payment completed successfully.",
+            }),
+          });
         } else {
           navigate('/payment-failed');
         }
@@ -32,7 +49,7 @@ export default function PaymentSuccess() {
     };
 
     verifyTransaction();
-  }, [transactionId, navigate, clearCart]);
+  }, [transactionId, navigate, clearCart, searchParams]);
 
   return (
     <div className="min-h-screen bg-elida-cream flex items-center justify-center p-4">
