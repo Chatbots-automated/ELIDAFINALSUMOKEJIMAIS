@@ -73,7 +73,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const originalPrice = typeof product.price === 'number' ? 
     product.price : 
     parseFloat(String(product.price));
-  const discountedPrice = user ? originalPrice * (1 - discountPercentage / 100) : originalPrice;
+  const discountedPrice = originalPrice * (1 - discountPercentage / 100);
   const formattedPrice = discountedPrice.toFixed(2);
 
   return (
@@ -175,7 +175,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="flex flex-col">
               {user ? (
                 <>
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2">
                     <span className="text-2xl font-bold text-elida-gold">{formattedPrice}€</span>
                     <User className="h-4 w-4 text-elida-gold" />
                   </div>
@@ -185,7 +185,20 @@ export default function ProductCard({ product }: ProductCardProps) {
                   </div>
                 </>
               ) : (
-                <span className="text-2xl font-bold text-elida-gold">{originalPrice.toFixed(2)}€</span>
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-bold text-gray-900">{originalPrice.toFixed(2)}€</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 bg-elida-gold/10 px-2 py-1 rounded-lg">
+                    <User className="h-4 w-4 text-elida-gold" />
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm text-elida-gold font-medium line-through">{originalPrice.toFixed(2)}€</span>
+                      <span className="text-sm text-elida-gold font-medium">{formattedPrice}€</span>
+                      <span className="text-xs bg-elida-gold text-white px-2 py-0.5 rounded-full">-{discountPercentage}%</span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-500 mt-1">Prisijungusiems vartotojams</span>
+                </>
               )}
             </div>
             <motion.button 
@@ -428,7 +441,20 @@ export default function ProductCard({ product }: ProductCardProps) {
                                 </div>
                               </>
                             ) : (
-                              <span className="text-3xl font-playfair text-gray-900">{originalPrice.toFixed(2)}€</span>
+                              <>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-3xl font-playfair text-gray-900">{originalPrice.toFixed(2)}€</span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-2 bg-elida-gold/10 px-3 py-2 rounded-lg">
+                                  <User className="h-5 w-5 text-elida-gold" />
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm text-elida-gold font-medium line-through">{originalPrice.toFixed(2)}€</span>
+                                    <span className="text-sm text-elida-gold font-medium">{formattedPrice}€</span>
+                                    <span className="text-xs bg-elida-gold text-white px-2 py-0.5 rounded-full">-{discountPercentage}%</span>
+                                  </div>
+                                </div>
+                                <span className="text-xs text-gray-500 mt-1">Prisijungusiems vartotojams</span>
+                              </>
                             )}
                           </div>
                           <motion.button
