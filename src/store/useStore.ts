@@ -13,7 +13,7 @@ interface StoreState {
   updateCartItemQuantity: (id: string, quantity: number, userId?: string, selectedSize?: string, selectedColor?: string) => void;
   clearCart: (userId?: string) => void;
   toggleWishlist: (item: Product) => void;
-  getCartTotal: () => number;
+  getCartTotal: (isLoggedIn: boolean) => number;
   syncCart: (userId: string) => Promise<void>;
 }
 
@@ -132,12 +132,13 @@ export const useStore = create<StoreState>()(
           };
         }),
 
-      getCartTotal: () => {
+      getCartTotal: (isLoggedIn) => {
         const state = get();
-        return state.cart.reduce(
+        const subtotal = state.cart.reduce(
           (total, item) => total + item.price * item.quantity,
           0
         );
+        return isLoggedIn ? subtotal * 0.85 : subtotal; // Apply 15% discount for logged-in users
       },
     }),
     {

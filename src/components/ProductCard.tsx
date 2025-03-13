@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Heart, ShoppingCart, Eye, Target, Shield, X, Star, Clock, Award, Sparkles, Info, Package, CheckCircle, Zap } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Target, Shield, X, Star, Clock, Award, Sparkles, Info, Package, CheckCircle, Zap, User } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { Product } from '../types/product';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +11,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart, toggleWishlist, wishlist } = useStore();
+  const { user } = useAuth();
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [showQuickView, setShowQuickView] = useState(false);
@@ -66,10 +68,13 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const { features, usage, warnings, ingredients } = categorizeDescription();
 
-  // Ensure price is a number and has toFixed method
-  const formattedPrice = typeof product.price === 'number' ? 
-    product.price.toFixed(2) : 
-    parseFloat(String(product.price)).toFixed(2);
+  // Calculate discounted price if user is logged in
+  const discountPercentage = 15;
+  const originalPrice = typeof product.price === 'number' ? 
+    product.price : 
+    parseFloat(String(product.price));
+  const discountedPrice = user ? originalPrice * (1 - discountPercentage / 100) : originalPrice;
+  const formattedPrice = discountedPrice.toFixed(2);
 
   return (
     <>
@@ -167,7 +172,22 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="text-gray-600 text-sm mb-6 line-clamp-2">{product.description}</p>
 
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-            <span className="text-2xl font-bold text-elida-gold">{formattedPrice}€</span>
+            <div className="flex flex-col">
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl font-bold text-elida-gold">{formattedPrice}€</span>
+                    <User className="h-4 w-4 text-elida-gold" />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm text-gray-500 line-through">{originalPrice.toFixed(2)}€</span>
+                    <span className="text-sm text-green-600">-{discountPercentage}%</span>
+                  </div>
+                </>
+              ) : (
+                <span className="text-2xl font-bold text-elida-gold">{originalPrice.toFixed(2)}€</span>
+              )}
+            </div>
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -395,9 +415,22 @@ export default function ProductCard({ product }: ProductCardProps) {
                         className="space-y-6 pt-6 border-t border-elida-gold/10"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-3xl font-playfair text-gray-900">
-                            €{formattedPrice}
-                          </span>
+                          <div className="flex flex-col">
+                            {user ? (
+                              <>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-3xl font-playfair text-gray-900">{formattedPrice}€</span>
+                                  <User className="h-5 w-5 text-elida-gold" />
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm text-gray-500 line-through">{originalPrice.toFixed(2)}€</span>
+                                  <span className="text-sm text-green-600">-{discountPercentage}%</span>
+                                </div>
+                              </>
+                            ) : (
+                              <span className="text-3xl font-playfair text-gray-900">{originalPrice.toFixed(2)}€</span>
+                            )}
+                          </div>
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}

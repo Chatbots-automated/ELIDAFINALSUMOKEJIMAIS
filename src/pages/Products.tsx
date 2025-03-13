@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ProductGrid from '../components/ProductGrid';
-import { ShoppingBag } from 'lucide-react';
 
 export default function Products() {
   return (

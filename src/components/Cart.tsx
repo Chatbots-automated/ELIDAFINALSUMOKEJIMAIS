@@ -1,7 +1,8 @@
 import React from 'react';
-import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, Trash2, User } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface CartProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface CartProps {
 export default function Cart({ isOpen, onClose }: CartProps) {
   const navigate = useNavigate();
   const { cart, removeFromCart, updateCartItemQuantity, getCartTotal, clearCart } = useStore();
+  const { user } = useAuth();
 
   const handleCheckout = () => {
     onClose();
@@ -124,15 +126,31 @@ export default function Cart({ isOpen, onClose }: CartProps) {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Tarpinė suma</span>
-                <span>€{getCartTotal().toFixed(2)}</span>
+                <span>€{getCartTotal(false).toFixed(2)}</span>
               </div>
+              {user && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <div className="flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    <span>Narystės nuolaida</span>
+                  </div>
+                  <span>-15%</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Pristatymas</span>
                 <span>Apskaičiuojama užsakymo metu</span>
               </div>
               <div className="flex justify-between text-lg font-semibold text-gray-900">
                 <span>Viso</span>
-                <span>€{getCartTotal().toFixed(2)}</span>
+                <div className="flex flex-col items-end">
+                  <span>€{getCartTotal(!!user).toFixed(2)}</span>
+                  {user && (
+                    <span className="text-sm text-gray-500 line-through">
+                      €{getCartTotal(false).toFixed(2)}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <button

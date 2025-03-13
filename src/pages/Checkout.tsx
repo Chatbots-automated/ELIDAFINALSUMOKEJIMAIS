@@ -87,7 +87,7 @@ export default function Checkout() {
       const baseUrl = window.location.origin;
 
       const paymentUrl = await createTransaction({
-        amount: getCartTotal(),
+        amount: getCartTotal(!!user),
         reference: orderRef,
         email: form.email,
         returnUrl: `${baseUrl}/payment-success`,
@@ -392,21 +392,34 @@ export default function Checkout() {
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-100">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-gray-600">
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between text-sm text-gray-600">
                     <span>Tarpinė suma</span>
-                    <span>€{getCartTotal().toFixed(2)}</span>
+                    <span>€{getCartTotal(false).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  {user && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <div className="flex items-center gap-1">
+                        <User className="h-4 w-4" />
+                        <span>Narystės nuolaida</span>
+                      </div>
+                      <span>-15%</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm text-gray-600">
                     <span>Pristatymas</span>
-                    <span className="flex items-center gap-1">
-                      <Truck className="h-4 w-4" />
-                      Nemokamas
-                    </span>
+                    <span>Apskaičiuojama užsakymo metu</span>
                   </div>
-                  <div className="flex justify-between text-xl font-playfair text-gray-900 pt-2">
+                  <div className="flex justify-between text-lg font-semibold text-gray-900">
                     <span>Viso</span>
-                    <span>€{getCartTotal().toFixed(2)}</span>
+                    <div className="flex flex-col items-end">
+                      <span>€{getCartTotal(!!user).toFixed(2)}</span>
+                      {user && (
+                        <span className="text-sm text-gray-500 line-through">
+                          €{getCartTotal(false).toFixed(2)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
