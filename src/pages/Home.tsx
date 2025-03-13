@@ -75,14 +75,21 @@ export default function Home() {
               <br />
               <span className="text-transparent bg-clip-text bg-gold-gradient animate-gradient">Įdegį</span>
             </motion.h1>
-            <motion.p 
+            <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.7 }}
-              className="text-xl text-elida-beige mb-12 max-w-lg leading-relaxed"
+              className="flex items-center gap-4 mb-12"
             >
-              ELIDA - šiuolaikiška vieta Jūsų tobulam įdegiui
-            </motion.p>
+              <img 
+                src="/elida-logo.svg" 
+                alt="ÉLIDA" 
+                className="h-12 brightness-0 invert"
+              />
+              <span className="text-xl text-elida-beige">
+                - šiuolaikiška vieta Jūsų tobulam įdegiui
+              </span>
+            </motion.div>
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

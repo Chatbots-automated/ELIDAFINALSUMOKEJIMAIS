@@ -16,7 +16,8 @@ import {
   Loader2, 
   ArrowLeft, 
   ChevronRight,
-  Info
+  Info,
+  Store
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -28,6 +29,7 @@ interface CheckoutForm {
   city: string;
   postalCode: string;
   phone: string;
+  deliveryMethod: 'shipping' | 'pickup';
 }
 
 export default function Checkout() {
@@ -43,7 +45,8 @@ export default function Checkout() {
     address: '',
     city: '',
     postalCode: '',
-    phone: ''
+    phone: '',
+    deliveryMethod: 'shipping'
   });
 
   if (cart.length === 0) {
@@ -67,7 +70,7 @@ export default function Checkout() {
     );
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value
@@ -194,58 +197,118 @@ export default function Checkout() {
 
               <div className="space-y-4">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-elida-gold" />
-                  Pristatymo adresas
+                  <Truck className="h-5 w-5 text-elida-gold" />
+                  Pristatymo būdas
                 </h3>
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                    Adresas *
-                  </label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={form.address}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 
-                             focus:ring-2 focus:ring-elida-gold focus:border-transparent"
-                  />
-                </div>
-
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                      Miestas *
-                    </label>
-                    <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      value={form.city}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 
-                               focus:ring-2 focus:ring-elida-gold focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
-                      Pašto kodas *
-                    </label>
-                    <input
-                      type="text"
-                      id="postalCode"
-                      name="postalCode"
-                      value={form.postalCode}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 
-                               focus:ring-2 focus:ring-elida-gold focus:border-transparent"
-                    />
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, deliveryMethod: 'shipping' })}
+                    className={`p-4 rounded-xl border ${
+                      form.deliveryMethod === 'shipping'
+                        ? 'border-elida-gold bg-elida-gold/5'
+                        : 'border-gray-200 hover:bg-gray-50'
+                    } transition-colors text-left`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <Truck className={`h-5 w-5 ${form.deliveryMethod === 'shipping' ? 'text-elida-gold' : 'text-gray-400'}`} />
+                      <span className="font-medium text-gray-900">Pristatymas</span>
+                    </div>
+                    <p className="text-sm text-gray-600">Pristatysime į nurodytą adresą</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, deliveryMethod: 'pickup' })}
+                    className={`p-4 rounded-xl border ${
+                      form.deliveryMethod === 'pickup'
+                        ? 'border-elida-gold bg-elida-gold/5'
+                        : 'border-gray-200 hover:bg-gray-50'
+                    } transition-colors text-left`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <Store className={`h-5 w-5 ${form.deliveryMethod === 'pickup' ? 'text-elida-gold' : 'text-gray-400'}`} />
+                      <span className="font-medium text-gray-900">Atsiėmimas</span>
+                    </div>
+                    <p className="text-sm text-gray-600">Atsiimkite mūsų salone</p>
+                  </button>
                 </div>
               </div>
+
+              {form.deliveryMethod === 'shipping' && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-elida-gold" />
+                    Pristatymo adresas
+                  </h3>
+                  <div>
+                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                      Adresas *
+                    </label>
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={form.address}
+                      onChange={handleChange}
+                      required={form.deliveryMethod === 'shipping'}
+                      className="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 
+                               focus:ring-2 focus:ring-elida-gold focus:border-transparent"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                        Miestas *
+                      </label>
+                      <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        value={form.city}
+                        onChange={handleChange}
+                        required={form.deliveryMethod === 'shipping'}
+                        className="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 
+                                 focus:ring-2 focus:ring-elida-gold focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
+                        Pašto kodas *
+                      </label>
+                      <input
+                        type="text"
+                        id="postalCode"
+                        name="postalCode"
+                        value={form.postalCode}
+                        onChange={handleChange}
+                        required={form.deliveryMethod === 'shipping'}
+                        className="w-full px-4 py-3 rounded-xl bg-white/50 border border-gray-200 
+                                 focus:ring-2 focus:ring-elida-gold focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {form.deliveryMethod === 'pickup' && (
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="flex items-start gap-3 mb-4">
+                    <Store className="h-5 w-5 text-elida-gold flex-shrink-0 mt-1" />
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-1">Atsiėmimo vieta</h4>
+                      <p className="text-gray-600">Vilniaus g. 23A, Panevėžys</p>
+                      <p className="text-gray-600">LT-36234</p>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Darbo laikas:<br />
+                    I-V: 9:00 - 20:00<br />
+                    VI: 9:00 - 16:00<br />
+                    VII: 9:00 - 14:00
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
@@ -353,7 +416,10 @@ export default function Checkout() {
               <div className="flex items-center gap-3 text-gray-600">
                 <Truck className="h-5 w-5 flex-shrink-0 text-elida-gold" />
                 <p className="text-sm">
-                  Nemokamas pristatymas visoje Lietuvoje. Pristatymo laikas: 2-4 darbo dienos
+                  {form.deliveryMethod === 'pickup' 
+                    ? 'Atsiėmimas salone nemokamai'
+                    : 'Nemokamas pristatymas visoje Lietuvoje. Pristatymo laikas: 2-4 darbo dienos'
+                  }
                 </p>
               </div>
             </div>
