@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { createOrder, updateOrderStatus, getOrderByReference } from './orderService';
+import type { Order } from './orderService';
 
 interface TransactionRequest {
   amount: number;
@@ -7,6 +9,7 @@ interface TransactionRequest {
   returnUrl: string;
   cancelUrl: string;
   notificationUrl: string;
+  orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>;
 }
 
 interface TransactionResponse {
@@ -29,27 +32,18 @@ export const createTransaction = async ({
   email,
   returnUrl,
   cancelUrl,
-  notificationUrl
+  notificationUrl,
+  orderData
 }: TransactionRequest): Promise<string> => {
   try {
-    console.log("Store ID:", import.meta.env.VITE_MAKECOMMERCE_STORE_ID);
-    console.log("Secret Key:", import.meta.env.VITE_MAKECOMMERCE_SECRET_KEY);
+    // First, create the order in Firestore
+    await createOrder(orderData);
 
-    // Fetch user's IP address
+    // Get user's IP address
     const ipResponse = await fetch('https://api64.ipify.org?format=json');
     const { ip } = await ipResponse.json();
 
-    console.log("Creating transaction with MakeCommerce API:", {
-      amount,
-      reference,
-      email,
-      returnUrl,
-      cancelUrl,
-      notificationUrl,
-      ip
-    });
-
-    // Encode credentials correctly
+    // Encode credentials
     const credentials = `${import.meta.env.VITE_MAKECOMMERCE_STORE_ID}:${import.meta.env.VITE_MAKECOMMERCE_SECRET_KEY}`;
     const encodedCredentials = btoa(credentials);
 
@@ -68,7 +62,10 @@ export const createTransaction = async ({
           merchant_data: `Order ID: ${reference}`,
           recurring_required: false,
           transaction_url: {
-            return_url: { url: returnUrl, method: 'GET' },
+            return_url: { 
+              url: `${returnUrl}?reference=${reference}&amount=${amount}&email=${email}`, 
+              method: 'GET' 
+            },
             cancel_url: { url: cancelUrl, method: 'GET' },
             notification_url: { url: notificationUrl, method: 'POST' },
           },
@@ -87,7 +84,6 @@ export const createTransaction = async ({
       }),
     });
 
-    // Handle API response
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("Payment API Error:", errorData);
@@ -95,14 +91,11 @@ export const createTransaction = async ({
     }
 
     const data: TransactionResponse = await response.json();
-    console.log("Transaction response:", data);
-    console.log("Available payment methods:", data.payment_methods);
 
-    // ✅ Correctly extract the final payment page URL
+    // Extract payment URL
     if (data.payment_methods?.other?.length) {
       const paymentUrl = data.payment_methods.other.find(method => method.name === "redirect")?.url;
       if (paymentUrl) {
-        console.log("✅ Redirecting to the actual payment page:", paymentUrl);
         return paymentUrl;
       }
     }
@@ -114,39 +107,8 @@ export const createTransaction = async ({
   }
 };
 
-export const getTransactionStatus = async (transactionId: string): Promise<'pending' | 'completed' | 'failed'> => {
-  try {
-    console.log("Fetching transaction status for ID:", transactionId);
-
-    const credentials = `${import.meta.env.VITE_MAKECOMMERCE_STORE_ID}:${import.meta.env.VITE_MAKECOMMERCE_SECRET_KEY}`;
-    const encodedCredentials = btoa(credentials);
-
-    const response = await fetch(`${API_URL}/${transactionId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${encodedCredentials}`
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch transaction status.");
-    }
-
-    const data = await response.json();
-    console.log("Transaction status response:", data);
-
-    return data.status || 'pending';
-  } catch (error) {
-    console.error("Error fetching transaction status:", error);
-    throw error;
-  }
-};
-
 export const verifyPayment = async (transactionId: string): Promise<boolean> => {
   try {
-    console.log("Verifying payment:", transactionId);
-
     const credentials = `${import.meta.env.VITE_MAKECOMMERCE_STORE_ID}:${import.meta.env.VITE_MAKECOMMERCE_SECRET_KEY}`;
     const encodedCredentials = btoa(credentials);
 
@@ -163,9 +125,36 @@ export const verifyPayment = async (transactionId: string): Promise<boolean> => 
     }
 
     const data = await response.json();
-    console.log("Verification response:", data);
-
-    return data.status === 'completed';
+    
+    if (data.status === 'completed') {
+      // Update order status in Firestore
+      if (data.reference) {
+        await updateOrderStatus(data.reference, 'completed');
+        
+        // Send webhook to Make.com
+        try {
+          const order = await getOrderByReference(data.reference);
+          if (order) {
+            await fetch('https://hook.eu2.make.com/cpw4ynt56urvf97eb2l9ap1rsm67hef2', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'PAYMENT_COMPLETED',
+                order,
+                transaction: data,
+              }),
+            });
+          }
+        } catch (webhookError) {
+          console.error('Error sending webhook:', webhookError);
+        }
+      }
+      return true;
+    }
+    
+    return false;
   } catch (error) {
     console.error("Payment verification error:", error);
     throw error;
